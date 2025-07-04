@@ -1,13 +1,56 @@
 [package]
 name = "hafiz_assistant_backend"
-version = "0.1.0"
-edition = "2024"
+version = "1.0.0"
+edition = "2021"
+authors = ["Hafiz Assistant Team"]
+description = "Rust backend for Quran data processing with FFI support for Flutter"
+license = "MIT"
+repository = "https://github.com/your-org/hafiz_assistant_backend"
+keywords = ["quran", "islam", "ffi", "flutter", "arabic"]
+categories = ["api-bindings", "text-processing"]
+
+# Disable automatic binary target
+autobins = false
+
+# CLI binary target
+[[bin]]
+name = "hafiz_assistant_cli"
+path = "src/bin/main.rs"
+
+[lib]
+name = "hafiz_assistant_core"
+crate-type = ["cdylib", "rlib", "staticlib"]
+path = "src/lib.rs"
 
 [dependencies]
-serde = { version = "1.0", features = ["derive"] }
+serde = { version = "1.0.219", features = ["derive"] }
 bincode = "2.0.1"
-serde_json = "1.0"
-# Untuk membaca file .db.json yang sebenarnya adalah JSON dengan struktur tabel
-# Kita akan memparsingnya secara manual karena bukan SQLite asli
-# Jika Anda berencana menggunakan SQLite asli di Rust, Anda akan butuh rusqlite
-# rusqlite = { version = "0.29", features = ["bundled"] } # Contoh jika pakai SQLite asli
+serde_json = "1.0.140"
+rand = "0.9.1"
+
+# WebAssembly optional dependencies
+wasm-bindgen = { version = "0.2.100", optional = true }
+js-sys = { version = "0.3.77", optional = true }
+web-sys = { version = "0.3.77", optional = true }
+console_error_panic_hook = { version = "0.1.7", optional = true }
+
+# Platform-specific configurations
+[target.'cfg(target_arch = "wasm32")'.dependencies]
+wasm-bindgen = { version = "0.2.100", optional = true }
+js-sys = { version = "0.3.77", optional = true }
+web-sys = { version = "0.3.77", optional = true }
+console_error_panic_hook = { version = "0.1.7", optional = true }
+
+# Features untuk berbagai platform
+[features]
+default = ["native"]
+native = []
+wasm = ["wasm-bindgen", "js-sys", "web-sys"]
+android = []
+ios = []
+
+# Metadata untuk cross-compilation
+[package.metadata.android]
+package_name = "com.hafiz.assistant.backend"
+android_version = 28
+target_sdk_version = 33
