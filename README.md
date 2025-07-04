@@ -132,10 +132,12 @@ src/
 
 ## 📚 Documentation
 
-- [Project Final Report](PROJECT_FINAL_REPORT.md) - Complete project overview
-- [Quick Start Guide](QUICK_START_GUIDE.md) - Getting started
-- [Interactive Page Viewer](INTERACTIVE_PAGE_VIEWER.md) - New feature guide
-- [Flutter Integration](FLUTTER_INTEGRATION.md) - Integration guide
+- [Project Final Report](docs/PROJECT_FINAL_REPORT.md) - Complete project overview
+- [Quick Start Guide](docs/QUICK_START_GUIDE.md) - Getting started
+- [Interactive Page Viewer](docs/INTERACTIVE_PAGE_VIEWER.md) - New feature guide
+- [Flutter Integration](docs/FLUTTER_INTEGRATION.md) - Integration guide
+- [FFI Reference](docs/FFI_REFERENCE.md) - FFI function reference
+- [Flutter Ready Status](docs/FLUTTER_READY.md) - Integration readiness
 
 ## 🔄 Build Commands
 

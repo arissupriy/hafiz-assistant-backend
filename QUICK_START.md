@@ -26,9 +26,10 @@ cargo build --release
 - Type `h` for help in any interactive mode
 
 ### 📚 Full Documentation
-- [Complete Guide](QUICK_START_GUIDE.md)
-- [Flutter Integration](FLUTTER_INTEGRATION.md)
-- [Page Viewer Guide](INTERACTIVE_PAGE_VIEWER.md)
+- [Complete Guide](docs/QUICK_START_GUIDE.md)
+- [Flutter Integration](docs/FLUTTER_INTEGRATION.md)
+- [Page Viewer Guide](docs/INTERACTIVE_PAGE_VIEWER.md)
+- [All Documentation](docs/)
 
 ---
 **Ready to explore 604 pages of Al-Quran interactively!** 🕌
