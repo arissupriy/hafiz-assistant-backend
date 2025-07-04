@@ -1,0 +1,1 @@
+C:\Users\Dell\ XPS\ 13\ 7390\Documents\DATA\ QURAN\V2\hafiz_assistant_backend\target\release\hafiz_assistant_backend.exe: C:\Users\Dell\ XPS\ 13\ 7390\Documents\DATA\ QURAN\V2\hafiz_assistant_backend\src\main.rs

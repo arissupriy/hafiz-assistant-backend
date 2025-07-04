@@ -1,0 +1,8 @@
+C:\Users\Dell XPS 13 7390\Documents\DATA QURAN\V2\hafiz_assistant_backend\target\release\deps\bincode_derive-f5b12a51b8f62b2f.d: C:\Users\Dell\ XPS\ 13\ 7390\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\bincode_derive-2.0.1\src\lib.rs C:\Users\Dell\ XPS\ 13\ 7390\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\bincode_derive-2.0.1\src\attribute.rs C:\Users\Dell\ XPS\ 13\ 7390\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\bincode_derive-2.0.1\src\derive_enum.rs C:\Users\Dell\ XPS\ 13\ 7390\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\bincode_derive-2.0.1\src\derive_struct.rs
+
+C:\Users\Dell XPS 13 7390\Documents\DATA QURAN\V2\hafiz_assistant_backend\target\release\deps\bincode_derive-f5b12a51b8f62b2f.dll: C:\Users\Dell\ XPS\ 13\ 7390\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\bincode_derive-2.0.1\src\lib.rs C:\Users\Dell\ XPS\ 13\ 7390\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\bincode_derive-2.0.1\src\attribute.rs C:\Users\Dell\ XPS\ 13\ 7390\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\bincode_derive-2.0.1\src\derive_enum.rs C:\Users\Dell\ XPS\ 13\ 7390\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\bincode_derive-2.0.1\src\derive_struct.rs
+
+C:\Users\Dell\ XPS\ 13\ 7390\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\bincode_derive-2.0.1\src\lib.rs:
+C:\Users\Dell\ XPS\ 13\ 7390\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\bincode_derive-2.0.1\src\attribute.rs:
+C:\Users\Dell\ XPS\ 13\ 7390\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\bincode_derive-2.0.1\src\derive_enum.rs:
+C:\Users\Dell\ XPS\ 13\ 7390\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\bincode_derive-2.0.1\src\derive_struct.rs:
