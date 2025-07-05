@@ -1,7 +1,7 @@
 // CLI untuk Hafiz Assistant Backend
 // Aplikasi command line untuk testing dan demonstrasi fitur
 
-use hafiz_assistant_core::*;
+use hafiz_assistant_engine::*;
 use std::io::{self, Write};
 
 fn main() -> Result<(), Box<dyn std::error::Error>> {

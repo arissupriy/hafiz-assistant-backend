@@ -8,18 +8,23 @@ license = "MIT"
 repository = "https://github.com/your-org/hafiz_assistant_backend"
 keywords = ["quran", "islam", "ffi", "flutter", "arabic"]
 categories = ["api-bindings", "text-processing"]
+readme = "README.md"
 
-# Disable automatic binary target
+# Disable automatic target discovery
 autobins = false
+autotests = false
+autobenches = false
 
-# CLI binary target
+# CLI binary target (desktop only - not built for Android/WASM)
 [[bin]]
-name = "hafiz_assistant_cli"
+name = "hafiz_assistant_engine"
 path = "src/bin/main.rs"
+required-features = ["cli"]
 
+# Library target (used for FFI / Android / WASM)
 [lib]
-name = "hafiz_assistant_core"
-crate-type = ["cdylib", "rlib", "staticlib"]
+name = "hafiz_assistant_engine"  # This controls .so output name
+crate-type = ["cdylib", "rlib"]
 path = "src/lib.rs"
 
 [dependencies]
@@ -27,6 +32,8 @@ serde = { version = "1.0.219", features = ["derive"] }
 bincode = "2.0.1"
 serde_json = "1.0.140"
 rand = "0.9.1"
+log = "0.4.21"
+cfg-if = "1.0"
 
 # WebAssembly optional dependencies
 wasm-bindgen = { version = "0.2.100", optional = true }
@@ -34,23 +41,19 @@ js-sys = { version = "0.3.77", optional = true }
 web-sys = { version = "0.3.77", optional = true }
 console_error_panic_hook = { version = "0.1.7", optional = true }
 
-# # Platform-specific configurations
-# [target.'cfg(target_arch = "wasm32")'.dependencies]
-# wasm-bindgen = { version = "0.2.100", optional = true }
-# js-sys = { version = "0.3.77", optional = true }
-# web-sys = { version = "0.3.77", optional = true }
-# console_error_panic_hook = { version = "0.1.7", optional = true }
+[features]
+default = ["cli"]
+cli = []  # Feature to enable CLI binary
+wasm = [
+  "wasm-bindgen",
+  "js-sys",
+  "web-sys",
+  "console_error_panic_hook"
+]
 
-# # Features untuk berbagai platform
-# [features]
-# default = ["native"]
-# native = []
-# wasm = ["wasm-bindgen", "js-sys", "web-sys"]
-# android = []
-# ios = []
-
-# # Metadata untuk cross-compilation
-# [package.metadata.android]
-# package_name = "com.hafiz.assistant.backend"
-# android_version = 28
-# target_sdk_version = 33
+[profile.release]
+opt-level = "z"
+lto = true
+codegen-units = 1
+panic = "abort"
+strip = true

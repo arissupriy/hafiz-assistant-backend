@@ -70,6 +70,23 @@ pub fn get_ayahs_by_page(page_number: u16) -> Vec<AyahData> {
     core::processing::get_ayahs_by_page(page_number)
 }
 
+// Additional utility functions
+pub fn get_random_ayah() -> Option<AyahData> {
+    core::processing::get_random_ayah()
+}
+
+pub fn get_page_containing_verse(verse_key: &str) -> Option<u16> {
+    core::processing::get_page_containing_verse(verse_key)
+}
+
+pub fn get_verses_in_page(page_number: u16) -> Vec<String> {
+    core::processing::get_verses_in_page(page_number)
+}
+
+pub fn get_quran_statistics() -> Option<crate::data::structures::QuranStatistics> {
+    core::processing::get_quran_statistics()
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;

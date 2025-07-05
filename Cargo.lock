@@ -67,8 +67,10 @@ name = "hafiz_assistant_engine"
 version = "1.0.0"
 dependencies = [
  "bincode",
+ "cfg-if",
  "console_error_panic_hook",
  "js-sys",
+ "log",
  "rand",
  "serde",
  "serde_json",

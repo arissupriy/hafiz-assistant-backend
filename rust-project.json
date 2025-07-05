@@ -1,0 +1,18 @@
+{
+  "crates": [
+    {
+      "root_module": "src/lib.rs",
+      "edition": "2021",
+      "deps": [],
+      "cfg": [],
+      "target": "lib"
+    },
+    {
+      "root_module": "src/bin/main.rs",
+      "edition": "2021",
+      "deps": [],
+      "cfg": [],
+      "target": "bin"
+    }
+  ]
+}

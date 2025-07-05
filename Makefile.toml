@@ -1,0 +1,62 @@
+[env]
+ANDROID_OUT = "./jniLibs"
+WASM_OUT = "./pkg"
+WASM_TARGET = "wasm32-unknown-unknown"
+WASM_BIN = "hafiz_assistant_engine"
+CLI_BIN = "hafiz_assistant_engine_cli"
+
+[tasks.build-android]
+description = "📦 Build Android .so for all common ABIs (library only)"
+command = "cargo"
+args = ["ndk",  "-t", "armeabi-v7a", "-t", "arm64-v8a", "-t", "x86", "-t", "x86_64", "-o", "${ANDROID_OUT}", "build", "--release", "--lib", "--no-default-features"]
+
+[tasks.build-wasm]
+description = "🌐 Build WebAssembly"
+script = [
+  "echo Building WebAssembly...",
+  "cargo build --release --target ${WASM_TARGET} --features wasm",
+  "wasm-bindgen target/${WASM_TARGET}/release/${WASM_BIN}.wasm --out-dir ${WASM_OUT} --target web"
+]
+
+[tasks.build-cli]
+description = "🧰 Build CLI Binary (desktop only)"
+command = "cargo"
+args = ["build", "--release", "--bin", "hafiz_assistant_engine", "--features", "cli"]
+
+[tasks.build-all]
+description = "🚀 Build all targets"
+dependencies = ["build-android", "build-wasm", "build-cli"]
+
+[tasks.clean]
+description = "🧹 Clean build outputs (cross-platform)"
+category = "Cleanup"
+script_runner = "bash"
+script = [
+  "echo Cleaning project outputs...",
+  "cargo clean",
+  '''
+  if [ "$OS" = "Windows_NT" ]; then
+    echo "Detected Windows..."
+    if exist ${WASM_OUT} rmdir /s /q ${WASM_OUT}
+    if exist ${ANDROID_OUT} rmdir /s /q ${ANDROID_OUT}
+  else
+    echo "Detected Unix/Linux..."
+    rm -rf "${WASM_OUT}" "${ANDROID_OUT}"
+  fi
+  '''
+]
+
+[tasks.help]
+description = "📌 Show available cargo-make commands"
+script = [
+  'echo "Available cargo-make tasks:"',
+  'echo "  cargo make build-android   - Build Android .so"',
+  'echo "  cargo make build-wasm      - Build WebAssembly"',
+  'echo "  cargo make build-cli       - Build CLI executable"',
+  'echo "  cargo make build-all       - Build all targets"',
+  'echo "  cargo make clean           - Clean all outputs"',
+  'echo "  cargo make help            - Show this message"'
+]
+
+[tasks.default]
+dependencies = ["help"]
