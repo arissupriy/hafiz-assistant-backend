@@ -209,7 +209,7 @@ fn test_ffi_functions() {
     
     // Test FFI initialization
     println!("\n1. FFI Initialization:");
-    let init_result = ffi::functions::initialize_data_ffi();
+    let init_result = ffi::functions::initialize_hafiz_assistant_engine();
     println!("   Result: {}", if init_result { "✅ Success" } else { "❌ Failed" });
     
     // Test FFI get ayah data

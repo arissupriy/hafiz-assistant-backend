@@ -5,7 +5,7 @@
 pub const LIBRARY_VERSION: &str = "1.0.0";
 
 /// Nama library
-pub const LIBRARY_NAME: &str = "Hafiz Assistant Backend";
+pub const LIBRARY_NAME: &str = "Hafiz Assistant Engine";
 
 /// Mendapatkan versi library
 #[no_mangle]

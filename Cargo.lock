@@ -63,7 +63,7 @@ dependencies = [
 ]
 
 [[package]]
-name = "hafiz_assistant_backend"
+name = "hafiz_assistant_engine"
 version = "1.0.0"
 dependencies = [
  "bincode",

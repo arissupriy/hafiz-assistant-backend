@@ -1,5 +1,5 @@
 [package]
-name = "hafiz_assistant_backend"
+name = "hafiz_assistant_engine"
 version = "1.0.0"
 edition = "2021"
 authors = ["Hafiz Assistant Team"]
@@ -34,23 +34,23 @@ js-sys = { version = "0.3.77", optional = true }
 web-sys = { version = "0.3.77", optional = true }
 console_error_panic_hook = { version = "0.1.7", optional = true }
 
-# Platform-specific configurations
-[target.'cfg(target_arch = "wasm32")'.dependencies]
-wasm-bindgen = { version = "0.2.100", optional = true }
-js-sys = { version = "0.3.77", optional = true }
-web-sys = { version = "0.3.77", optional = true }
-console_error_panic_hook = { version = "0.1.7", optional = true }
+# # Platform-specific configurations
+# [target.'cfg(target_arch = "wasm32")'.dependencies]
+# wasm-bindgen = { version = "0.2.100", optional = true }
+# js-sys = { version = "0.3.77", optional = true }
+# web-sys = { version = "0.3.77", optional = true }
+# console_error_panic_hook = { version = "0.1.7", optional = true }
 
-# Features untuk berbagai platform
-[features]
-default = ["native"]
-native = []
-wasm = ["wasm-bindgen", "js-sys", "web-sys"]
-android = []
-ios = []
+# # Features untuk berbagai platform
+# [features]
+# default = ["native"]
+# native = []
+# wasm = ["wasm-bindgen", "js-sys", "web-sys"]
+# android = []
+# ios = []
 
-# Metadata untuk cross-compilation
-[package.metadata.android]
-package_name = "com.hafiz.assistant.backend"
-android_version = 28
-target_sdk_version = 33
+# # Metadata untuk cross-compilation
+# [package.metadata.android]
+# package_name = "com.hafiz.assistant.backend"
+# android_version = 28
+# target_sdk_version = 33

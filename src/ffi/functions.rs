@@ -9,7 +9,7 @@ use std::ptr;
 
 /// Inisialisasi data Quran
 #[no_mangle]
-pub extern "C" fn initialize_data_ffi() -> bool {
+pub extern "C" fn initialize_hafiz_assistant_engine() -> bool {
     match processing::initialize_data() {
         Ok(_) => true,
         Err(_) => false,
