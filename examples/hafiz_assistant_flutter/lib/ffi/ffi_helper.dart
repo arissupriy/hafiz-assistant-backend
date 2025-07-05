@@ -9,60 +9,75 @@ class FFIHelper {
   static AyahData? convertAyahData(Pointer<AyahDataNative>? nativePtr) {
     if (nativePtr == null || nativePtr == nullptr) return null;
     
-    final native = nativePtr.ref;
-    
-    return AyahData(
-      verseKey: '${native.surahNumber}:${native.ayahNumber}',
-      surahNumber: native.surahNumber,
-      ayahNumber: native.ayahNumber,
-      arabicText: native.arabicText.toDartString(),
-      transliteration: native.transliteration.toDartString(),
-      translation: native.translation.toDartString(),
-      surahName: native.surahNameTransliteration.toDartString(),
-      surahNameArabic: native.surahNameArabic.toDartString(),
-      juzNumber: 1, // Default values - would need to be calculated or stored
-      hizbNumber: 1,
-      rubNumber: 1,
-      rukuNumber: 1,
-      manzilNumber: 1,
-      pageNumber: 1,
-    );
+    try {
+      final native = nativePtr.ref;
+      
+      return AyahData(
+        verseKey: _safeStringFromPointer(native.verseKey) ?? '${native.surahNumber}:${native.ayahNumber}',
+        arabicText: _safeStringFromPointer(native.arabicText) ?? '',
+        translation: _safeStringFromPointer(native.translation) ?? '',
+        transliteration: _safeStringFromPointer(native.transliteration) ?? '',
+        surahName: _safeStringFromPointer(native.surahName) ?? '',
+        surahNameArabic: _safeStringFromPointer(native.surahNameArabic) ?? '',
+        surahNumber: native.surahNumber,
+        ayahNumber: native.ayahNumber,
+        juzNumber: native.juzNumber,
+        hizbNumber: native.hizbNumber,
+        rubNumber: native.rubNumber,
+        rukuNumber: native.rukuNumber,
+        manzilNumber: native.manzilNumber,
+        pageNumber: native.pageNumber,
+      );
+    } catch (e) {
+      print('Error converting AyahData: $e');
+      return null;
+    }
   }
 
   static SurahInfo? convertSurahInfo(Pointer<SurahInfoNative>? nativePtr) {
     if (nativePtr == null || nativePtr == nullptr) return null;
     
-    final native = nativePtr.ref;
-    
-    return SurahInfo(
-      id: native.number,
-      nameSimple: native.nameTransliteration.toDartString(),
-      nameArabic: native.nameArabic.toDartString(),
-      nameEnglish: native.nameTranslation.toDartString(),
-      revelationOrder: native.number, // Placeholder - would need actual revelation order
-      revelationPlace: native.revelationType == 0 ? 'Makkah' : 'Madinah',
-      versesCount: native.ayahCount,
-      bismillahPre: native.number != 1 && native.number != 9, // All except Al-Fatihah and At-Tawbah
-    );
+    try {
+      final native = nativePtr.ref;
+      
+      return SurahInfo(
+        id: native.id,
+        nameSimple: _safeStringFromPointer(native.nameSimple) ?? '',
+        nameArabic: _safeStringFromPointer(native.nameArabic) ?? '',
+        nameEnglish: _safeStringFromPointer(native.nameEnglish) ?? '',
+        revelationOrder: native.revelationOrder,
+        revelationPlace: _safeStringFromPointer(native.revelationPlace) ?? '',
+        versesCount: native.versesCount,
+        bismillahPre: native.bismillahPre,
+      );
+    } catch (e) {
+      print('Error converting SurahInfo: $e');
+      return null;
+    }
   }
 
   static QuranStatistics? convertQuranStatistics(Pointer<QuranStatisticsNative>? nativePtr) {
     if (nativePtr == null || nativePtr == nullptr) return null;
     
-    final native = nativePtr.ref;
-    
-    return QuranStatistics(
-      totalSurahs: native.totalSurahs,
-      totalAyahs: native.totalAyahs,
-      totalWords: 77800, // Default values - would need to be added to Rust struct
-      totalLetters: 330000,
-      totalPages: 604,
-      totalJuz: 30,
-      totalHizb: 60,
-      totalRuku: 540,
-      totalManzil: 7,
-      totalSajda: 15,
-    );
+    try {
+      final native = nativePtr.ref;
+      
+      return QuranStatistics(
+        totalSurahs: native.totalSurahs,
+        totalAyahs: native.totalAyahs,
+        totalWords: native.totalWords,
+        totalLetters: native.totalLetters,
+        totalPages: native.totalPages,
+        totalJuz: native.totalJuz,
+        totalHizb: native.totalHizb,
+        totalRuku: native.totalRuku,
+        totalManzil: native.totalManzil,
+        totalSajda: native.totalSajda,
+      );
+    } catch (e) {
+      print('Error converting QuranStatistics: $e');
+      return null;
+    }
   }
 
   static List<AyahData> convertSearchResults(List<Pointer<AyahDataNative>> nativePtrs) {
@@ -76,5 +91,15 @@ class FFIHelper {
     }
     
     return results;
+  }
+
+  static String? _safeStringFromPointer(Pointer<Utf8> pointer) {
+    try {
+      if (pointer == nullptr) return null;
+      return pointer.toDartString();
+    } catch (e) {
+      print('Error converting string from pointer: $e');
+      return null;
+    }
   }
 }

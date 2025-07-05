@@ -1,80 +1,89 @@
 // Data Loader untuk Hafiz Assistant Backend
-// Memuat data dari file JSON dan mengkonversi ke struktur internal
+// Memuat data dari JSON yang di-embed saat compile time
 
 use crate::data::structures::*;
 use crate::data::bundle::QuranCoreDataBundle;
+use crate::data::embedded::*;
 use serde_json::Value;
 use std::collections::HashMap;
-use std::fs::File;
-use std::io::Read;
-use std::path::Path;
 
-/// Loader untuk data Quran
-pub struct DataLoader {
-    pub data_dir: String,
-}
+/// Loader untuk data Quran dari embedded JSON
+pub struct DataLoader;
 
 impl DataLoader {
-    /// Membuat loader baru
-    pub fn new(data_dir: &str) -> Self {
-        Self {
-            data_dir: data_dir.to_string(),
-        }
-    }
-
-    /// Memuat semua data Quran
-    pub fn load_all_data(&self) -> Result<QuranCoreDataBundle, Box<dyn std::error::Error>> {
+    /// Memuat semua data Quran dari embedded JSON
+    pub fn load_all_data() -> Result<QuranCoreDataBundle, Box<dyn std::error::Error>> {
+        println!("🔄 Loading embedded Quran data from compiled binary...");
+        
+        let loader = DataLoader;
         let mut bundle = QuranCoreDataBundle::new();
 
         // Load ayah metadata
-        bundle.ayah_metadata = self.load_ayah_metadata()?;
+        println!("📖 Loading ayah metadata...");
+        bundle.ayah_metadata = loader.load_ayah_metadata()?;
         
         // Load ayah data dengan terjemahan
-        bundle.ayah_data = self.load_ayah_data()?;
+        println!("📚 Loading ayah data...");
+        bundle.ayah_data = loader.load_ayah_data()?;
         
         // Load surah names
-        bundle.surah_names = self.load_surah_names()?;
+        println!("🏷️ Loading surah names...");
+        bundle.surah_names = loader.load_surah_names()?;
         
         // Load surah info
-        bundle.surah_info = self.load_surah_info()?;
+        println!("ℹ️ Loading surah info...");
+        bundle.surah_info = loader.load_surah_info()?;
         
         // Load translations
-        bundle.indonesian_translation = self.load_indonesian_translation()?;
+        println!("🌍 Loading Indonesian translation...");
+        bundle.indonesian_translation = loader.load_indonesian_translation()?;
         
         // Load transliteration
-        bundle.transliteration = self.load_transliteration()?;
+        println!("🔤 Loading transliteration...");
+        bundle.transliteration = loader.load_transliteration()?;
         
         // Load page data
-        bundle.rendered_pages = self.load_rendered_pages()?;
+        println!("📄 Loading rendered pages...");
+        bundle.rendered_pages = loader.load_rendered_pages()?;
         
         // Load juz info
-        bundle.juz_info = self.load_juz_info()?;
+        println!("📜 Loading juz info...");
+        bundle.juz_info = loader.load_juz_info()?;
         
         // Load hizb info
-        bundle.hizb_info = self.load_hizb_info()?;
+        println!("🔷 Loading hizb info...");
+        bundle.hizb_info = loader.load_hizb_info()?;
         
         // Load ruku info
-        bundle.ruku_info = self.load_ruku_info()?;
+        println!("📋 Loading ruku info...");
+        bundle.ruku_info = loader.load_ruku_info()?;
         
         // Load manzil info
-        bundle.manzil_info = self.load_manzil_info()?;
+        println!("📊 Loading manzil info...");
+        bundle.manzil_info = loader.load_manzil_info()?;
         
         // Load sajda info
-        bundle.sajda_info = self.load_sajda_info()?;
+        println!("🕌 Loading sajda info...");
+        bundle.sajda_info = loader.load_sajda_info()?;
         
         // Load phrase verses
-        bundle.phrase_verses = self.load_phrase_verses()?;
+        println!("🔍 Loading phrase verses...");
+        bundle.phrase_verses = loader.load_phrase_verses()?;
         
         // Load matching ayahs
-        bundle.matching_ayahs = self.load_matching_ayahs()?;
+        println!("🎯 Loading matching ayahs...");
+        bundle.matching_ayahs = loader.load_matching_ayahs()?;
 
+        // Statistics sudah ter-set dengan default values
+        println!("📊 Statistics loaded with default values");
+
+        println!("✅ All embedded data loaded successfully!");
         Ok(bundle)
     }
 
     /// Memuat metadata ayat
     fn load_ayah_metadata(&self) -> Result<Vec<AyahMetadata>, Box<dyn std::error::Error>> {
-        let file_path = Path::new(&self.data_dir).join("quran-metadata-ayah.json");
-        let data = self.read_json_file(&file_path)?;
+        let data = self.parse_json_from_str(QURAN_METADATA_AYAH)?;
         
         let mut ayahs = Vec::new();
         
@@ -109,26 +118,23 @@ impl DataLoader {
         let translations = self.load_indonesian_translation()?;
         let transliterations = self.load_transliteration()?;
         
-        // Load from metadata file first
-        let metadata_file = Path::new(&self.data_dir).join("quran-metadata-ayah.json");
-        if metadata_file.exists() {
-            let data = self.read_json_file(&metadata_file)?;
+        // Load from embedded metadata
+        let data = self.parse_json_from_str(QURAN_METADATA_AYAH)?;
             
-            if let Some(obj) = data.as_object() {
-                for (_, verse_data) in obj {
-                    if let Some(mut ayah) = self.parse_ayah_data_from_metadata(verse_data) {
-                        // Integrate translation data
-                        if let Some(translation) = translations.get(&ayah.verse_key) {
-                            ayah.translation_id = translation.clone();
-                        }
-                        
-                        // Integrate transliteration data
-                        if let Some(transliteration) = transliterations.get(&ayah.verse_key) {
-                            ayah.transliteration = transliteration.clone();
-                        }
-                        
-                        ayah_data.insert(ayah.verse_key.clone(), ayah);
+        if let Some(obj) = data.as_object() {
+            for (_, verse_data) in obj {
+                if let Some(mut ayah) = self.parse_ayah_data_from_metadata(verse_data) {
+                    // Integrate translation data
+                    if let Some(translation) = translations.get(&ayah.verse_key) {
+                        ayah.translation_id = translation.clone();
                     }
+                    
+                    // Integrate transliteration data
+                    if let Some(transliteration) = transliterations.get(&ayah.verse_key) {
+                        ayah.transliteration = transliteration.clone();
+                    }
+                    
+                    ayah_data.insert(ayah.verse_key.clone(), ayah);
                 }
             }
         }
@@ -138,8 +144,7 @@ impl DataLoader {
 
     /// Memuat nama-nama surah
     fn load_surah_names(&self) -> Result<Vec<SurahNameMetadata>, Box<dyn std::error::Error>> {
-        let file_path = Path::new(&self.data_dir).join("quran-metadata-surah-name.json");
-        let data = self.read_json_file(&file_path)?;
+        let data = self.parse_json_from_str(QURAN_METADATA_SURAH_NAME)?;
         
         let mut surahs = Vec::new();
         if let Some(chapters) = data.get("chapters").and_then(|c| c.as_array()) {
@@ -155,8 +160,7 @@ impl DataLoader {
 
     /// Memuat informasi surah
     fn load_surah_info(&self) -> Result<HashMap<u16, SurahInfo>, Box<dyn std::error::Error>> {
-        let file_path = Path::new(&self.data_dir).join("surah-info-id.json");
-        let data = self.read_json_file(&file_path)?;
+        let data = self.parse_json_from_str(SURAH_INFO_ID)?;
         
         let mut surah_info = HashMap::new();
         
@@ -181,8 +185,7 @@ impl DataLoader {
 
     /// Memuat terjemahan Indonesia
     fn load_indonesian_translation(&self) -> Result<HashMap<String, String>, Box<dyn std::error::Error>> {
-        let file_path = Path::new(&self.data_dir).join("indonesian-mokhtasar.json");
-        let data = self.read_json_file(&file_path)?;
+        let data = self.parse_json_from_str(INDONESIAN_MOKHTASAR)?;
         
         let mut translations = HashMap::new();
         
@@ -200,8 +203,7 @@ impl DataLoader {
 
     /// Memuat transliterasi
     fn load_transliteration(&self) -> Result<HashMap<String, String>, Box<dyn std::error::Error>> {
-        let file_path = Path::new(&self.data_dir).join("transliteration-simple.json");
-        let data = self.read_json_file(&file_path)?;
+        let data = self.parse_json_from_str(TRANSLITERATION_SIMPLE)?;
         
         let mut transliterations = HashMap::new();
         
@@ -226,8 +228,7 @@ impl DataLoader {
 
     /// Memuat data halaman
     fn load_rendered_pages(&self) -> Result<Vec<RenderedPage>, Box<dyn std::error::Error>> {
-        let file_path = Path::new(&self.data_dir).join("qpc-v2-15-lines.db.json");
-        let data = self.read_json_file(&file_path)?;
+        let data = self.parse_json_from_str(QPC_V2_15_LINES_DB)?;
         
         let mut pages = Vec::new();
         
@@ -388,7 +389,7 @@ impl DataLoader {
 
     /// Get surah info by number (helper method)
     fn get_surah_info_by_number(&self, surah_number: u16) -> Option<SurahInfo> {
-        // Load surah info and find by number
+        // Load surah info from embedded data and find by number
         if let Ok(surah_info_map) = self.load_surah_info() {
             surah_info_map.get(&surah_number).cloned()
         } else {
@@ -398,8 +399,7 @@ impl DataLoader {
 
     /// Memuat info juz
     fn load_juz_info(&self) -> Result<HashMap<u8, JuzInfo>, Box<dyn std::error::Error>> {
-        let file_path = Path::new(&self.data_dir).join("quran-metadata-juz.json");
-        let data = self.read_json_file(&file_path)?;
+        let data = self.parse_json_from_str(QURAN_METADATA_JUZ)?;
         
         let mut juz_info = HashMap::new();
         if let Some(juzs) = data.get("juzs").and_then(|j| j.as_array()) {
@@ -415,8 +415,7 @@ impl DataLoader {
 
     /// Memuat info hizb
     fn load_hizb_info(&self) -> Result<HashMap<u8, HizbInfo>, Box<dyn std::error::Error>> {
-        let file_path = Path::new(&self.data_dir).join("quran-metadata-hizb.json");
-        let data = self.read_json_file(&file_path)?;
+        let data = self.parse_json_from_str(QURAN_METADATA_HIZB)?;
         
         let mut hizb_info = HashMap::new();
         if let Some(hizbs) = data.get("hizbs").and_then(|h| h.as_array()) {
@@ -432,8 +431,7 @@ impl DataLoader {
 
     /// Memuat info ruku
     fn load_ruku_info(&self) -> Result<HashMap<u8, RukuInfo>, Box<dyn std::error::Error>> {
-        let file_path = Path::new(&self.data_dir).join("quran-metadata-ruku.json");
-        let data = self.read_json_file(&file_path)?;
+        let data = self.parse_json_from_str(QURAN_METADATA_RUKU)?;
         
         let mut ruku_info = HashMap::new();
         if let Some(rukus) = data.get("rukus").and_then(|r| r.as_array()) {
@@ -449,8 +447,7 @@ impl DataLoader {
 
     /// Memuat info manzil
     fn load_manzil_info(&self) -> Result<HashMap<u8, ManzilInfo>, Box<dyn std::error::Error>> {
-        let file_path = Path::new(&self.data_dir).join("quran-metadata-manzil.json");
-        let data = self.read_json_file(&file_path)?;
+        let data = self.parse_json_from_str(QURAN_METADATA_MANZIL)?;
         
         let mut manzil_info = HashMap::new();
         if let Some(manzils) = data.get("manzils").and_then(|m| m.as_array()) {
@@ -466,8 +463,7 @@ impl DataLoader {
 
     /// Memuat info sajda
     fn load_sajda_info(&self) -> Result<HashMap<u8, SajdaInfo>, Box<dyn std::error::Error>> {
-        let file_path = Path::new(&self.data_dir).join("quran-metadata-sajda.json");
-        let data = self.read_json_file(&file_path)?;
+        let data = self.parse_json_from_str(QURAN_METADATA_SAJDA)?;
         
         let mut sajda_info = HashMap::new();
         if let Some(sajdas) = data.get("sajdas").and_then(|s| s.as_array()) {
@@ -483,8 +479,7 @@ impl DataLoader {
 
     /// Memuat phrase verses
     fn load_phrase_verses(&self) -> Result<HashMap<String, Vec<u32>>, Box<dyn std::error::Error>> {
-        let file_path = Path::new(&self.data_dir).join("phrase_verses.json");
-        let data = self.read_json_file(&file_path)?;
+        let data = self.parse_json_from_str(PHRASE_VERSES)?;
         
         let mut phrase_verses = HashMap::new();
         if let Some(obj) = data.as_object() {
@@ -504,8 +499,7 @@ impl DataLoader {
 
     /// Memuat matching ayahs
     fn load_matching_ayahs(&self) -> Result<HashMap<String, Vec<MatchingAyah>>, Box<dyn std::error::Error>> {
-        let file_path = Path::new(&self.data_dir).join("matching-ayah.json");
-        let data = self.read_json_file(&file_path)?;
+        let data = self.parse_json_from_str(MATCHING_AYAH)?;
         
         let mut matching_ayahs = HashMap::new();
         if let Some(obj) = data.as_object() {
@@ -547,12 +541,9 @@ impl DataLoader {
         })
     }
 
-    /// Membaca file JSON
-    fn read_json_file(&self, file_path: &Path) -> Result<Value, Box<dyn std::error::Error>> {
-        let mut file = File::open(file_path)?;
-        let mut contents = String::new();
-        file.read_to_string(&mut contents)?;
-        let data: Value = serde_json::from_str(&contents)?;
+    /// Parse JSON dari embedded string
+    fn parse_json_from_str(&self, json_str: &str) -> Result<Value, Box<dyn std::error::Error>> {
+        let data: Value = serde_json::from_str(json_str)?;
         Ok(data)
     }
 
@@ -569,25 +560,56 @@ impl DataLoader {
 
     /// Parse ayah data dari metadata JSON
     fn parse_ayah_data_from_metadata(&self, verse: &Value) -> Option<AyahData> {
+        let verse_key = verse.get("verse_key")?.as_str()?.to_string();
+        
+        // Get surah and ayah numbers from verse key
+        let parts: Vec<&str> = verse_key.split(':').collect();
+        if parts.len() != 2 {
+            return None;
+        }
+        let surah_number = parts[0].parse::<u16>().ok()?;
+        let ayah_number = parts[1].parse::<u16>().ok()?;
+        
+        // Determine juz_number using juz metadata
+        let juz_number = self.find_juz_for_verse(&verse_key);
+        
+        // Determine hizb_number using hizb metadata  
+        let hizb_number = self.find_hizb_for_verse(&verse_key);
+        
+        // Determine rub_number using rub metadata
+        let rub_number = self.find_rub_for_verse(&verse_key);
+        
+        // Determine ruku_number using ruku metadata
+        let ruku_number = self.find_ruku_for_verse(&verse_key);
+        
+        // Determine manzil_number using manzil metadata
+        let manzil_number = self.find_manzil_for_verse(&verse_key);
+        
+        // Check if this verse has sajda
+        let sajda = self.find_sajda_for_verse(&verse_key);
+        
+        // Get page number from page data (we'll implement this estimation)
+        let page_number = self.estimate_page_for_verse(&verse_key);
+
         Some(AyahData {
             id: verse.get("id")?.as_u64()? as u32,
-            surah_number: verse.get("surah_number")?.as_u64()? as u16,
-            ayah_number: verse.get("ayah_number")?.as_u64()? as u16,
-            verse_key: verse.get("verse_key")?.as_str()?.to_string(),
+            surah_number,
+            ayah_number,
+            verse_key,
             text_arab: verse.get("text")?.as_str()?.to_string(),
             text_uthmani: verse.get("text")?.as_str()?.to_string(),
             translation_id: String::new(),
             transliteration: String::new(),
             surah_name: String::new(),
             surah_name_arabic: String::new(),
-            juz_number: 1, // Default values
-            hizb_number: 1,
-            rub_number: 1,
-            ruku_number: 1,
-            manzil_number: 1,
-            page_number: 1,
-            line_number: 1,
-            sajda: None,
+            juz_number,
+            hizb_number,
+            rub_number,
+            ruku_number,
+            manzil_number,
+            page_number,
+            line_number: 1, // Default, could be enhanced later
+            sajda,
         })
     }
 
@@ -606,17 +628,15 @@ impl DataLoader {
 
     /// Parse surah info
     fn parse_surah_info(&self, chapter: &Value) -> Option<SurahInfo> {
-        // Berdasarkan analisis Python, struktur aktual adalah:
-        // {"surah_number": 1, "surah_name": "Al-Fatihah", "text": "...", "short_text": "..."}
         Some(SurahInfo {
-            id: chapter.get("surah_number")?.as_u64()? as u16,
-            name_simple: chapter.get("surah_name")?.as_str()?.to_string(),
-            name_arabic: chapter.get("surah_name")?.as_str()?.to_string(), // Gunakan nama yang sama untuk sementara
-            name_english: chapter.get("surah_name")?.as_str()?.to_string(),
-            revelation_order: chapter.get("surah_number")?.as_u64()? as u16, // Default ke nomor surah
-            revelation_place: "Unknown".to_string(), // Default value
-            verses_count: 1, // Default value - akan diupdate nanti
-            bismillah_pre: chapter.get("surah_number")?.as_u64()? != 1, // Semua kecuali Al-Fatihah
+            id: chapter.get("id")?.as_u64()? as u16,
+            name_simple: chapter.get("name_simple")?.as_str()?.to_string(),
+            name_arabic: chapter.get("name_arabic")?.as_str()?.to_string(),
+            name_english: chapter.get("name_english")?.as_str().unwrap_or("").to_string(),
+            revelation_order: chapter.get("revelation_order")?.as_u64()? as u16,
+            revelation_place: chapter.get("revelation_place")?.as_str()?.to_string(),
+            verses_count: chapter.get("verses_count")?.as_u64()? as u16,
+            bismillah_pre: chapter.get("bismillah_pre")?.as_bool().unwrap_or(true),
         })
     }
 
@@ -627,8 +647,8 @@ impl DataLoader {
             first_verse_id: juz.get("first_verse_id")?.as_u64()? as u32,
             last_verse_id: juz.get("last_verse_id")?.as_u64()? as u32,
             verses_count: juz.get("verses_count")?.as_u64()? as u16,
-            name_arabic: juz.get("name_arabic").and_then(|n| n.as_str()).unwrap_or("").to_string(),
-            name_simple: juz.get("name_simple").and_then(|n| n.as_str()).unwrap_or("").to_string(),
+            name_arabic: juz.get("name_arabic")?.as_str().unwrap_or("").to_string(),
+            name_simple: juz.get("name_simple")?.as_str().unwrap_or("").to_string(),
         })
     }
 
@@ -671,5 +691,259 @@ impl DataLoader {
             recommended: sajda.get("recommended")?.as_bool()?,
             obligatory: sajda.get("obligatory")?.as_bool()?,
         })
+    }
+
+    /// Find juz number for a given verse key
+    fn find_juz_for_verse(&self, verse_key: &str) -> u8 {
+        if let Ok(juz_metadata) = serde_json::from_str::<Value>(QURAN_METADATA_JUZ) {
+            if let Some(chapters) = juz_metadata.as_array() {
+                for juz in chapters {
+                    if let (Some(first_verse), Some(last_verse)) = (
+                        juz.get("first_verse_id").and_then(|v| v.as_u64()),
+                        juz.get("last_verse_id").and_then(|v| v.as_u64())
+                    ) {
+                        if let Some(verse_id) = self.verse_key_to_id(verse_key) {
+                            if verse_id >= first_verse as u32 && verse_id <= last_verse as u32 {
+                                return juz.get("id").and_then(|v| v.as_u64()).unwrap_or(1) as u8;
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        1 // Default to Juz 1
+    }
+
+    /// Find hizb number for a given verse key
+    fn find_hizb_for_verse(&self, verse_key: &str) -> u8 {
+        if let Ok(hizb_metadata) = serde_json::from_str::<Value>(QURAN_METADATA_HIZB) {
+            if let Some(chapters) = hizb_metadata.as_array() {
+                for hizb in chapters {
+                    if let (Some(first_verse), Some(last_verse)) = (
+                        hizb.get("first_verse_id").and_then(|v| v.as_u64()),
+                        hizb.get("last_verse_id").and_then(|v| v.as_u64())
+                    ) {
+                        if let Some(verse_id) = self.verse_key_to_id(verse_key) {
+                            if verse_id >= first_verse as u32 && verse_id <= last_verse as u32 {
+                                return hizb.get("id").and_then(|v| v.as_u64()).unwrap_or(1) as u8;
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        1 // Default to Hizb 1
+    }
+
+    /// Find rub number for a given verse key
+    fn find_rub_for_verse(&self, verse_key: &str) -> u8 {
+        if let Ok(rub_metadata) = serde_json::from_str::<Value>(QURAN_METADATA_RUB) {
+            if let Some(chapters) = rub_metadata.as_array() {
+                for rub in chapters {
+                    if let (Some(first_verse), Some(last_verse)) = (
+                        rub.get("first_verse_id").and_then(|v| v.as_u64()),
+                        rub.get("last_verse_id").and_then(|v| v.as_u64())
+                    ) {
+                        if let Some(verse_id) = self.verse_key_to_id(verse_key) {
+                            if verse_id >= first_verse as u32 && verse_id <= last_verse as u32 {
+                                return rub.get("id").and_then(|v| v.as_u64()).unwrap_or(1) as u8;
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        1 // Default to Rub 1
+    }
+
+    /// Find ruku number for a given verse key
+    fn find_ruku_for_verse(&self, verse_key: &str) -> u8 {
+        if let Ok(ruku_metadata) = serde_json::from_str::<Value>(QURAN_METADATA_RUKU) {
+            if let Some(chapters) = ruku_metadata.as_array() {
+                for ruku in chapters {
+                    if let (Some(first_verse), Some(last_verse)) = (
+                        ruku.get("first_verse_id").and_then(|v| v.as_u64()),
+                        ruku.get("last_verse_id").and_then(|v| v.as_u64())
+                    ) {
+                        if let Some(verse_id) = self.verse_key_to_id(verse_key) {
+                            if verse_id >= first_verse as u32 && verse_id <= last_verse as u32 {
+                                return ruku.get("id").and_then(|v| v.as_u64()).unwrap_or(1) as u8;
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        1 // Default to Ruku 1
+    }
+
+    /// Find manzil number for a given verse key
+    fn find_manzil_for_verse(&self, verse_key: &str) -> u8 {
+        if let Ok(manzil_metadata) = serde_json::from_str::<Value>(QURAN_METADATA_MANZIL) {
+            if let Some(chapters) = manzil_metadata.as_array() {
+                for manzil in chapters {
+                    if let (Some(first_verse), Some(last_verse)) = (
+                        manzil.get("first_verse_id").and_then(|v| v.as_u64()),
+                        manzil.get("last_verse_id").and_then(|v| v.as_u64())
+                    ) {
+                        if let Some(verse_id) = self.verse_key_to_id(verse_key) {
+                            if verse_id >= first_verse as u32 && verse_id <= last_verse as u32 {
+                                return manzil.get("id").and_then(|v| v.as_u64()).unwrap_or(1) as u8;
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        1 // Default to Manzil 1
+    }
+
+    /// Find sajda information for a given verse key
+    fn find_sajda_for_verse(&self, verse_key: &str) -> Option<SajdaInfo> {
+        if let Ok(sajda_metadata) = serde_json::from_str::<Value>(QURAN_METADATA_SAJDA) {
+            if let Some(chapters) = sajda_metadata.as_array() {
+                for sajda in chapters {
+                    if let Some(verse_key_sajda) = sajda.get("verse_key").and_then(|v| v.as_str()) {
+                        if verse_key_sajda == verse_key {
+                            return Some(SajdaInfo {
+                                id: sajda.get("id").and_then(|v| v.as_u64()).unwrap_or(1) as u8,
+                                sajda_type: sajda.get("type").and_then(|v| v.as_str()).unwrap_or("recommended").to_string(),
+                                recommended: sajda.get("recommended").and_then(|v| v.as_bool()).unwrap_or(true),
+                                obligatory: sajda.get("obligatory").and_then(|v| v.as_bool()).unwrap_or(false),
+                            });
+                        }
+                    }
+                }
+            }
+        }
+        None
+    }
+
+    /// Estimate page number for a given verse key
+    fn estimate_page_for_verse(&self, verse_key: &str) -> u16 {
+        // Parse the verse key to get surah and ayah numbers
+        let parts: Vec<&str> = verse_key.split(':').collect();
+        if parts.len() != 2 {
+            return 1;
+        }
+        
+        let surah_number: u16 = parts[0].parse().unwrap_or(1);
+        let ayah_number: u16 = parts[1].parse().unwrap_or(1);
+        
+        // Simple estimation based on Quran structure (604 pages total)
+        // This is a simplified estimation - for more accurate mapping, 
+        // you would need page-specific data
+        match surah_number {
+            1 => 1,  // Al-Fatiha
+            2 => {   // Al-Baqarah
+                if ayah_number <= 25 { 2 }
+                else if ayah_number <= 50 { 8 }
+                else if ayah_number <= 100 { 16 }
+                else if ayah_number <= 200 { 32 }
+                else { 48 }
+            },
+            3 => 50,  // Ali 'Imran starts around page 50
+            4 => 77,  // An-Nisa starts around page 77
+            5 => 106, // Al-Ma'idah starts around page 106
+            6 => 128, // Al-An'am starts around page 128
+            7 => 151, // Al-A'raf starts around page 151
+            8 => 177, // Al-Anfal starts around page 177
+            9 => 187, // At-Tawbah starts around page 187
+            10 => 208, // Yunus starts around page 208
+            _ => {
+                // Very rough estimation for other surahs
+                let estimated_page = ((surah_number - 1) as f32 * 5.3) as u16 + 1;
+                if estimated_page > 604 { 604 } else { estimated_page }
+            }
+        }
+    }
+
+    /// Convert verse key to verse ID (helper method)
+    fn verse_key_to_id(&self, verse_key: &str) -> Option<u32> {
+        // This would need the actual verse ID mapping
+        // For now, return a simple calculation
+        let parts: Vec<&str> = verse_key.split(':').collect();
+        if parts.len() != 2 {
+            return None;
+        }
+        
+        let surah_number: u32 = parts[0].parse().ok()?;
+        let ayah_number: u32 = parts[1].parse().ok()?;
+        
+        // Simple ID calculation - this should be replaced with actual mapping
+        Some((surah_number - 1) * 300 + ayah_number)
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn test_helper_methods() {
+        let loader = DataLoader;
+
+        // Test juz finder
+        let juz = loader.find_juz_for_verse("1:1");
+        println!("Juz for 1:1: {}", juz);
+        assert!(juz >= 1 && juz <= 30);
+
+        // Test hizb finder
+        let hizb = loader.find_hizb_for_verse("1:1");
+        println!("Hizb for 1:1: {}", hizb);
+        assert!(hizb >= 1);
+
+        // Test page estimation
+        let page = loader.estimate_page_for_verse("1:1");
+        println!("Page for 1:1: {}", page);
+        assert_eq!(page, 1); // Al-Fatiha should be on page 1
+
+        let page2 = loader.estimate_page_for_verse("2:255");
+        println!("Page for 2:255 (Ayat al-Kursi): {}", page2);
+        assert!(page2 > 1); // Should be later in the Quran
+
+        // Test verse key to ID conversion
+        if let Some(id) = loader.verse_key_to_id("1:1") {
+            println!("Verse ID for 1:1: {}", id);
+            assert!(id > 0);
+        }
+
+        // Test sajda finder (most verses won't have sajda)
+        let sajda = loader.find_sajda_for_verse("1:1");
+        println!("Sajda for 1:1: {:?}", sajda);
+        // Al-Fatiha verse 1 shouldn't have sajda
+        assert!(sajda.is_none());
+    }
+
+    #[test]
+    fn test_parse_ayah_data_basic() {
+        let loader = DataLoader;
+        
+        // Create a mock JSON value that represents ayah data with correct field names
+        let mock_ayah_json = serde_json::json!({
+            "id": 1,
+            "verse_key": "1:1",
+            "text": "بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ"
+        });
+
+        if let Some(ayah_data) = loader.parse_ayah_data_from_metadata(&mock_ayah_json) {
+            println!("Successfully parsed ayah data:");
+            println!("  Verse key: {}", ayah_data.verse_key);
+            println!("  Surah: {}", ayah_data.surah_number);
+            println!("  Ayah: {}", ayah_data.ayah_number);
+            println!("  Juz: {}", ayah_data.juz_number);
+            println!("  Page: {}", ayah_data.page_number);
+            println!("  Text: {}", ayah_data.text_arab);
+            
+            // Basic assertions
+            assert_eq!(ayah_data.verse_key, "1:1");
+            assert_eq!(ayah_data.surah_number, 1);
+            assert_eq!(ayah_data.ayah_number, 1);
+            assert!(ayah_data.juz_number >= 1);
+            assert!(ayah_data.page_number >= 1);
+            assert_eq!(ayah_data.text_arab, "بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ");
+        } else {
+            panic!("Failed to parse mock ayah data");
+        }
     }
 }

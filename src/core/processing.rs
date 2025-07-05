@@ -1,9 +1,8 @@
 // Core Processing untuk Hafiz Assistant Backend
 // Menangani inisialisasi data dan operasi dasar
 
-use crate::data::{QuranCoreDataBundle, DataLoader, AyahData, SurahInfo, RenderedPage};
+use crate::data::{QuranCoreDataBundle, AyahData, SurahInfo, RenderedPage, DataLoader};
 use std::sync::{Arc, Mutex, OnceLock};
-use std::path::Path;
 
 // Global data bundle
 static GLOBAL_DATA: OnceLock<Arc<Mutex<Option<QuranCoreDataBundle>>>> = OnceLock::new();
@@ -17,43 +16,17 @@ pub fn initialize_data() -> Result<(), Box<dyn std::error::Error>> {
         return Ok(()); // Data sudah diinisialisasi
     }
 
-    // Tentukan direktori data
-    let data_dir = find_data_directory()?;
-    println!("Loading data from: {}", data_dir);
-
-    // Load data menggunakan DataLoader
-    let loader = DataLoader::new(&data_dir);
-    let bundle = loader.load_all_data()?;
+    // Gunakan DataLoader yang sudah dimodifikasi untuk embedded data
+    println!("🔄 Loading embedded Quran data from binary...");
+    let bundle = DataLoader::load_all_data()?;
     
     // Validasi data
     bundle.validate().map_err(|e| format!("Data validation failed: {}", e))?;
     
     *data_guard = Some(bundle);
-    println!("✅ Data loaded successfully!");
+    println!("✅ All embedded data loaded and validated successfully!");
     
     Ok(())
-}
-
-/// Mencari direktori data
-fn find_data_directory() -> Result<String, Box<dyn std::error::Error>> {
-    let current_dir = std::env::current_dir()?.join("data");
-    let current_dir_str = current_dir.to_string_lossy().to_string();
-    
-    let possible_paths = vec![
-        "./data",
-        "../data", 
-        "../../data",
-        "./data",
-        &current_dir_str,
-    ];
-
-    for path in possible_paths {
-        if Path::new(&path).exists() {
-            return Ok(path.to_string());
-        }
-    }
-
-    Err("Data directory not found. Please ensure the 'data' directory exists.".into())
 }
 
 /// Mendapatkan data bundle global
